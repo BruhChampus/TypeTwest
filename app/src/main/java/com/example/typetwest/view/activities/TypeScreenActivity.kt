@@ -14,10 +14,15 @@ import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.example.typetwest.R
 import com.example.typetwest.controller.retrofit.RetrofitInstance
 import com.example.typetwest.databinding.ActivityTypeScreenBinding
 import com.example.typetwest.utils.Constants
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -30,6 +35,9 @@ class TypeScreenActivity : BaseActivity() {
     private lateinit var text: String
     private lateinit var countTimer: CountDownTimer
 
+
+    private val debounceDuration = 300L // задержка в миллисекундах
+    private var job: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,70 +83,18 @@ class TypeScreenActivity : BaseActivity() {
         binding.etTypedText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                // перебираем символы введенного текста
-                for (i in s.indices) {
-                    val typed = s[i]
-                    val expected: Char = text[i]
-                    if (i >= text.length - 1) {
-                        // если пользователь ввел больше символов, чем в заданном тексте, выходим из цикла
-                        if (typed == expected) {
-                            // символы совпадают, изменяем цвет на зеленый
-                            binding.etHintText.editableText.setSpan(
-                                ForegroundColorSpan(Color.GREEN),
-                                i,
-                                i + 1,
-                                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                            )
-                            countTimer.onFinish()
-                        } else {
-                            // символы не совпадают, изменяем цвет на красный
-                            binding.etHintText.editableText.setSpan(
-                                ForegroundColorSpan(Color.RED),
-                                i,
-                                i + 1,
-                                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                            )
-                            countTimer.onFinish()
-                        }
-                        break
-                    }
-                    // сравниваем символы
-                    if (typed == expected) {
-                        // символы совпадают, изменяем цвет на зеленый
-                        binding.etHintText.editableText.setSpan(
-                            ForegroundColorSpan(Color.GREEN),
-                            i,
-                            i + 1,
-                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                        )
-                    } else {
-                        // символы не совпадают, изменяем цвет на красный
-                        binding.etHintText.editableText.setSpan(
-                            ForegroundColorSpan(Color.RED),
-                            i,
-                            i + 1,
-                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                        )
-                    }
+
+                job?.cancel()
+                job = lifecycleScope.launch{
+                    delay(100)
+                    updateTextColor(s.toString())
                 }
             }
 
             override fun afterTextChanged(s: Editable) {
-                for (i in text.indices) {
-                    if (i >= s.length) {
-                        // пользователь стер символ, изменяем цвет на серый
-                        binding.etHintText.editableText.setSpan(
-                            ForegroundColorSpan(Color.GRAY),
-                            i,
-                            i + 1,
-                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                        )
-                    }
-                }
+
             }
         })
-
-
 
 
 
@@ -149,6 +105,7 @@ class TypeScreenActivity : BaseActivity() {
         }
 
         binding.ivClose.setOnClickListener {
+            countTimer.cancel()
             val intent = Intent(this, MainActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
@@ -199,6 +156,56 @@ class TypeScreenActivity : BaseActivity() {
                 startActivity(intent)
                 finish()
 
+            }
+
+        }
+    }
+
+    fun updateTextColor(s:String){
+        // перебираем символы введенного текста
+        for (i in s.indices) {
+            val typed = s[i]
+            val expected: Char = text[i]
+            if (i >= text.length - 1) {
+                // если пользователь ввел больше символов, чем в заданном тексте, выходим из цикла
+                if (typed == expected) {
+                    // символы совпадают, изменяем цвет на зеленый
+                    binding.etHintText.editableText.setSpan(
+                        ForegroundColorSpan(Color.GREEN),
+                        i,
+                        i + 1,
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                    countTimer.onFinish()
+                } else {
+                    // символы не совпадают, изменяем цвет на красный
+                    binding.etHintText.editableText.setSpan(
+                        ForegroundColorSpan(Color.RED),
+                        i,
+                        i + 1,
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                    countTimer.onFinish()
+                }
+                break
+            }
+            // сравниваем символы
+            if (typed == expected) {
+                // символы совпадают, изменяем цвет на зеленый
+                binding.etHintText.editableText.setSpan(
+                    ForegroundColorSpan(Color.GREEN),
+                    i,
+                    i + 1,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+            } else {
+                // символы не совпадают, изменяем цвет на красный
+                binding.etHintText.editableText.setSpan(
+                    ForegroundColorSpan(Color.RED),
+                    i,
+                    i + 1,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
             }
 
         }

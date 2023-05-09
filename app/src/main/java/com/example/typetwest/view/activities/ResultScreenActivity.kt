@@ -51,6 +51,9 @@ class ResultScreenActivity : BaseActivity() {
         grossWpm = (correct + mistakes / 5) / minutes
         netWpm = grossWpm - (mistakes / minutes)
         accuracy = (netWpm / grossWpm) * 100
+        if(accuracy.isNaN()){
+            accuracy = 0.0f
+        }
 
         Log.i("Minutes", "$minutes")
         Log.i("Seconds", "$seconds")
