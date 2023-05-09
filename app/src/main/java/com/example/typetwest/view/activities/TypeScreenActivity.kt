@@ -34,9 +34,6 @@ class TypeScreenActivity : BaseActivity() {
     private var correct: Int = 0
     private lateinit var text: String
     private lateinit var countTimer: CountDownTimer
-
-
-    private val debounceDuration = 300L // задержка в миллисекундах
     private var job: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,7 +46,54 @@ class TypeScreenActivity : BaseActivity() {
         }
 
         showProgressDialog()
+        createRetrofitRequest()
 
+
+        binding.etTypedText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+                job?.cancel()
+                job = lifecycleScope.launch {
+                    delay(100)
+                    updateTextColor(s.toString())
+                }
+            }
+            override fun afterTextChanged(s: Editable) {
+                for (i in text.indices) {
+                    if (i >= s.length) {
+                        // user erased the symbol, change the color to gray
+                        binding.etHintText.editableText.setSpan(
+                            ForegroundColorSpan(Color.GRAY),
+                            i,
+                            i + 1,
+                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
+                    }
+                }
+            }
+        })
+
+
+        createCountDownTimer()
+
+        binding.etTypedText.setOnClickListener {
+            countTimer.start()
+            binding.etTypedText.visibility = View.INVISIBLE
+            binding.tvTapOnScreenToStart.visibility = View.GONE
+        }
+
+        binding.ivClose.setOnClickListener {
+            countTimer.cancel()
+            val intent = Intent(this, MainActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            finish()
+        }
+
+
+    }
+
+    private fun createRetrofitRequest() {
         val textCall: Call<List<String>> = RetrofitInstance.api.getLoremIpsum()
         textCall.enqueue(object : Callback<List<String>> {
             override fun onResponse(call: Call<List<String>>, response: Response<List<String>>) {
@@ -78,47 +122,18 @@ class TypeScreenActivity : BaseActivity() {
                 hideProgressDialog()
             }
         })
+    }
 
-
-        binding.etTypedText.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-
-                job?.cancel()
-                job = lifecycleScope.launch{
-                    delay(100)
-                    updateTextColor(s.toString())
-                }
-            }
-
-            override fun afterTextChanged(s: Editable) {
-
-            }
-        })
-
-
-
-        binding.etTypedText.setOnClickListener {
-            countTimer.start()
-            binding.etTypedText.visibility = View.INVISIBLE
-            binding.tvTapOnScreenToStart.visibility = View.GONE
-        }
-
-        binding.ivClose.setOnClickListener {
-            countTimer.cancel()
-            val intent = Intent(this, MainActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
-            finish()
-        }
-
-
+    private fun createCountDownTimer() {
         countTimer = object : CountDownTimer((mSeconds * 1000).toLong(), 1000) {
             override fun onTick(p0: Long) {
                 binding.tvTimer.text = (p0 / 1000).toString()
             }
 
             override fun onFinish() {
+                /*
+                * There we count the number of green/red letters and assign values for correct and mistakes
+                * */
                 val spans = binding.etHintText.editableText.getSpans(
                     0,
                     binding.etHintText.text.length,
@@ -148,6 +163,8 @@ class TypeScreenActivity : BaseActivity() {
                 countTimer.cancel()
 
 
+
+                //Passing data to ResultScreenActivity
                 val intent = Intent(this@TypeScreenActivity, ResultScreenActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 intent.putExtra(Constants.MISTAKES, mistakes)
@@ -161,15 +178,20 @@ class TypeScreenActivity : BaseActivity() {
         }
     }
 
-    fun updateTextColor(s:String){
-        // перебираем символы введенного текста
+
+
+   // Change the color of the letter based on user input
+    fun updateTextColor(s: String) {
+        // iterate through the characters of the entered text
         for (i in s.indices) {
             val typed = s[i]
             val expected: Char = text[i]
+
+            //For the last letter in text
             if (i >= text.length - 1) {
-                // если пользователь ввел больше символов, чем в заданном тексте, выходим из цикла
+                // if the user has entered more characters than in the given text, exit the loop
                 if (typed == expected) {
-                    // символы совпадают, изменяем цвет на зеленый
+                    // symbols match, change color to green
                     binding.etHintText.editableText.setSpan(
                         ForegroundColorSpan(Color.GREEN),
                         i,
@@ -178,7 +200,7 @@ class TypeScreenActivity : BaseActivity() {
                     )
                     countTimer.onFinish()
                 } else {
-                    // символы не совпадают, изменяем цвет на красный
+                    //symbols do not match, change color to red
                     binding.etHintText.editableText.setSpan(
                         ForegroundColorSpan(Color.RED),
                         i,
@@ -189,9 +211,11 @@ class TypeScreenActivity : BaseActivity() {
                 }
                 break
             }
-            // сравниваем символы
+
+            //For  other letter in text
+            // compare symbols
             if (typed == expected) {
-                // символы совпадают, изменяем цвет на зеленый
+                // symbols match, change color to green
                 binding.etHintText.editableText.setSpan(
                     ForegroundColorSpan(Color.GREEN),
                     i,
@@ -199,7 +223,7 @@ class TypeScreenActivity : BaseActivity() {
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
             } else {
-                // символы не совпадают, изменяем цвет на красный
+                //symbols do not match, change color to red
                 binding.etHintText.editableText.setSpan(
                     ForegroundColorSpan(Color.RED),
                     i,

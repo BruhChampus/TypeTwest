@@ -32,6 +32,9 @@ import de.hdodenhof.circleimageview.CircleImageView
 import org.w3c.dom.Text
 import java.io.IOException
 
+
+
+//TODO сделаьб код чище, добаввить график в ResultActivity, реализовать мтеоды onDestroy, написать комменты
 class MainActivity : BaseActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var mUserDetails: User
@@ -40,6 +43,10 @@ class MainActivity : BaseActivity() {
     private var mSelectedImageFileUri: Uri? = null
     private var mProfileImageUrl: String = ""
     private lateinit var mSharedPreferences: SharedPreferences
+    private var mAccuracyFromResultScreen: Float? = null
+    private var mAvgWpmFromResultScreen: Int? = null
+    private var mAvgWpm: Int = 0
+    private var mAverageAccuracy: String =  ""
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,6 +56,12 @@ class MainActivity : BaseActivity() {
         showProgressDialog()
         FirestoreClass().loadUserData(this)
         initClickListeners()
+
+        if (intent.hasExtra(Constants.AVG_WPM) && intent.hasExtra(Constants.ACCURACY)) {
+            mAccuracyFromResultScreen = intent.getFloatExtra(Constants.ACCURACY, 0.0f)
+            mAvgWpmFromResultScreen = intent.getIntExtra(Constants.AVG_WPM, 0)
+        }
+
     }
 
 
@@ -68,6 +81,7 @@ class MainActivity : BaseActivity() {
                 binding.tvSeconds.text = "$mSeconds seconds"
             }
         }
+
         binding.ivRightArrow.setOnClickListener {
             if (mSeconds == 300) {
                 Toast.makeText(this, "You cannot increase the seconds more", Toast.LENGTH_LONG)
@@ -77,6 +91,7 @@ class MainActivity : BaseActivity() {
                 binding.tvSeconds.text = "$mSeconds seconds"
             }
         }
+
         binding.btnStart.setOnClickListener {
             val intent = Intent(this, TypeScreenActivity::class.java)
             intent.putExtra(Constants.SECONDS, mSeconds)
@@ -118,8 +133,11 @@ class MainActivity : BaseActivity() {
         if (mProfileImageUrl.isNotEmpty() && mProfileImageUrl != mUserDetails.image) {
             userHashMap[Constants.IMAGE] = mProfileImageUrl
         }
+        userHashMap[Constants.AVG_WPM] = mAvgWpm
+        userHashMap[Constants.ACCURACY] = mAverageAccuracy
         FirestoreClass().updateUserProfileData(this, userHashMap)
     }
+
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -140,12 +158,10 @@ class MainActivity : BaseActivity() {
         }
     }
 
-
     private fun showImageChooser() {
         val galleryIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
         loadImageGallery.launch(galleryIntent)
     }
-
     private val loadImageGallery =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK && result.data != null) {
@@ -169,7 +185,8 @@ class MainActivity : BaseActivity() {
         }
 
 
-    //Adding image to FirebaseStorage
+
+    //Adding image to FireStorage
     private fun uploadUserImages() {
         showProgressDialog(resources.getString(R.string.please_wait))
 
@@ -213,13 +230,31 @@ class MainActivity : BaseActivity() {
         mUserDetails.avgWpm = user.avgWpm
         mUserDetails.accuracy = user.accuracy
 
-        binding.tvSeconds.text = "$mSeconds seconds"
-        binding.tvTotalAccuracy.text = "Total accuracy: ${mUserDetails.accuracy}"
-        binding.tvAvgWpm.text = "Average WPM: ${mUserDetails.avgWpm}"
 
         Glide.with(this).load(mUserDetails.image).centerCrop()
             .placeholder(R.drawable.image_placeholder)
             .into(findViewById<CircleImageView>(R.id.civ_user_image))
+
+
+        if (mAccuracyFromResultScreen != null && mAvgWpmFromResultScreen != null) {
+            //Making mUserDetails.accuracy from "86,4%" to "86.4"
+            val mUserDetailsAccuracyFloat = mUserDetails.accuracy.replace(",", ".").dropLast(1)
+            val mAverageAccuracyFloat =
+                ((mUserDetailsAccuracyFloat.toFloat() + mAccuracyFromResultScreen!!) / 2)
+            mAverageAccuracy = String.format("%.1f", mAverageAccuracyFloat) + "%"
+            mAvgWpm = (mUserDetails.avgWpm + mAvgWpmFromResultScreen!!) / 2
+            //Passing the new data to Firebase
+            updateUserProfileData()
+            binding.tvSeconds.text = "$mSeconds seconds"
+            binding.tvTotalAccuracy.text = "Total accuracy: ${mAverageAccuracy}"
+            binding.tvAvgWpm.text = "Average WPM: ${mAvgWpm}"
+        }else{
+            binding.tvSeconds.text = "$mSeconds seconds"
+            binding.tvTotalAccuracy.text = "Total accuracy: ${mUserDetails.accuracy}"
+            binding.tvAvgWpm.text = "Average WPM: ${mUserDetails.avgWpm}"
+        }
+
+
     }
 
     fun profileUpdateSuccess() {

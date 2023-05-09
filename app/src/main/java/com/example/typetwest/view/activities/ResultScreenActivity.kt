@@ -32,17 +32,20 @@ class ResultScreenActivity : BaseActivity() {
         }
 
         binding.btnNext.setOnClickListener {
-            startActivity(Intent(this, MainActivity::class.java))
+            val intent = Intent(this, MainActivity::class.java)
+            intent.putExtra(Constants.AVG_WPM, netWpm.toInt())
+            intent.putExtra(Constants.ACCURACY, accuracy)
+            startActivity(intent)
             finish()
         }
 
         calculateValues()
 
         binding.tvTotalAccuracy.text = "Accuracy: ${String.format("%.1f", accuracy)}%"
-        binding.tvAvgWpm.text = "Average WPM: $netWpm"
+        binding.tvAvgWpm.text = "Average WPM: ${String.format("%.1f", netWpm)}"
         binding.tvMistakes.text = "Mistakes: $mistakes"
 
-        updateUserProfileData()
+
     }
 
 
@@ -62,11 +65,4 @@ class ResultScreenActivity : BaseActivity() {
         Log.i("accuracy", "$accuracy")
     }
 
-    private fun updateUserProfileData() {
-        showProgressDialog()
-        val userHashMap = HashMap<String, Any>()
-            userHashMap[Constants.AVG_WPM] = netWpm.toInt()
-            userHashMap[Constants.ACCURACY] = String.format("%.1f", accuracy) + "%"
-        FirestoreClass().updateUserProfileData(this, userHashMap)
-    }
 }

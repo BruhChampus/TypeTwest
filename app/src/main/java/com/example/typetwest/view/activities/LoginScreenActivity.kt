@@ -17,6 +17,9 @@ class LoginScreenActivity : AppCompatActivity() {
         setContentView(binding.root)
 
 
+        /*
+        * if user is already logged in he proceeds to MainActivity
+        * */
         val currentUserId = FirestoreClass().getCurrentUserId()
         if (currentUserId.isNotEmpty()) {
             startActivity(Intent(this, MainActivity::class.java))

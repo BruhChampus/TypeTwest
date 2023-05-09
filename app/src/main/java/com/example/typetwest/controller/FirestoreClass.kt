@@ -41,7 +41,6 @@ class FirestoreClass {
                     }
                     is MainActivity -> activity.updateNavigationUserDetails(loggedInUser)
                 }
-
             }
     }
 
