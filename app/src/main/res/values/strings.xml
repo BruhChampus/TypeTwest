@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">TypeTwest</string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="please_wait">Please wait</string>
+
+    <string name="sign_up">Sign up</string>
+    <string name="sign_in">Sign in</string>
+    <string name="sign_out">Sign out</string>
+    <string name="login">Login</string>
+    <string name="register">Register</string>
+    <string name="enter_email_address">Enter email address</string>
+    <string name="enter_password">Enter password</string>
+    <string name="confirm_password">Confirm password</string>
+
+
+    <string name="seconds">seconds</string>
+    <string name="total_accuracy">Total accuracy</string>
+    <string name="average_wpm">Average WPM</string>
+    <string name="mistakes">Mistakes</string>
+
+    <string name="start">Start</string>
+    <string name="next">Next</string>
+    <string name="congratulations">Congratulations!</string>
+    <string name="tap_on_screen_to_start">Tap on screen to start</string>
+</resources>
