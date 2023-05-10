@@ -32,7 +32,7 @@ class TypeScreenActivity : BaseActivity() {
     private var mSeconds: Int = 0
     private var mistakes: Int = 0
     private var correct: Int = 0
-    private lateinit var text: String
+    private var text: String = ""
     private lateinit var countTimer: CountDownTimer
     private var job: Job? = null
 
@@ -233,5 +233,11 @@ class TypeScreenActivity : BaseActivity() {
             }
 
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        countTimer.cancel()
+        job?.cancel()
     }
 }

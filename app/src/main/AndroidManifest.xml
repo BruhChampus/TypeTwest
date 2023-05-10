@@ -20,6 +20,7 @@
             android:exported="false" />
         <activity
             android:name=".view.activities.TypeScreenActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".view.activities.LoginScreenActivity"

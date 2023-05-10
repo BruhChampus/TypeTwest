@@ -20,28 +20,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         />
 
-    <ImageView
-        android:id="@+id/iv_statistics_diagram"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:src="@drawable/background_result_screen_statistics"
-        android:layout_marginTop="30dp"
-        app:layout_constraintTop_toBottomOf="@id/tv_congratulations"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/view_guide_line"
-   />
 
 
-    <View
-        android:id="@+id/view_guide_line"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        />
+
+
 
 
     <LinearLayout
@@ -53,7 +35,7 @@
         app:layout_constraintBottom_toTopOf="@id/btn_next"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/view_guide_line">
+        app:layout_constraintTop_toBottomOf="@id/tv_congratulations">
 
         <TextView
             android:id="@+id/tv_total_accuracy"

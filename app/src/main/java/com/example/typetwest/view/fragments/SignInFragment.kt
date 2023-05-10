@@ -41,7 +41,7 @@ class SignInFragment : BaseFragment() {
 
 
         binding.tvSignUp.setOnClickListener {
-            val fragmentSignUp = SignUpFragment.newInstance("", "")
+            val fragmentSignUp = SignUpFragment.newInstance()
             activity?.supportFragmentManager?.beginTransaction()
                 ?.replace(R.id.fl_login_screen_fragment_container, fragmentSignUp)?.commit()
         }
@@ -107,7 +107,7 @@ class SignInFragment : BaseFragment() {
     companion object {
 
         @JvmStatic
-        fun newInstance(param1: String, param2: String) =
+        fun newInstance() =
             SignInFragment().apply {
                 arguments = Bundle().apply {
 

@@ -24,7 +24,7 @@ class LoginScreenActivity : AppCompatActivity() {
         if (currentUserId.isNotEmpty()) {
             startActivity(Intent(this, MainActivity::class.java))
         }else{
-            val fragmentSignIn = SignInFragment.newInstance("", "")
+            val fragmentSignIn = SignInFragment.newInstance()
             supportFragmentManager.beginTransaction()
                 .replace(R.id.fl_login_screen_fragment_container, fragmentSignIn).commit()
         }

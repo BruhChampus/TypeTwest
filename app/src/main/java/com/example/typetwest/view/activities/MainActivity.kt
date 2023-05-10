@@ -34,7 +34,6 @@ import java.io.IOException
 
 
 
-//TODO сделаьб код чище, добаввить график в ResultActivity, реализовать мтеоды onDestroy, написать комменты
 class MainActivity : BaseActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var mUserDetails: User
@@ -42,7 +41,6 @@ class MainActivity : BaseActivity() {
     private lateinit var mDialog: Dialog
     private var mSelectedImageFileUri: Uri? = null
     private var mProfileImageUrl: String = ""
-    private lateinit var mSharedPreferences: SharedPreferences
     private var mAccuracyFromResultScreen: Float? = null
     private var mAvgWpmFromResultScreen: Int? = null
     private var mAvgWpm: Int = 0
@@ -128,6 +126,7 @@ class MainActivity : BaseActivity() {
     }
 
 
+    //Updates user data
     private fun updateUserProfileData() {
         val userHashMap = HashMap<String, Any>()
         if (mProfileImageUrl.isNotEmpty() && mProfileImageUrl != mUserDetails.image) {
@@ -137,6 +136,7 @@ class MainActivity : BaseActivity() {
         userHashMap[Constants.ACCURACY] = mAverageAccuracy
         FirestoreClass().updateUserProfileData(this, userHashMap)
     }
+
 
 
     override fun onRequestPermissionsResult(
@@ -158,6 +158,7 @@ class MainActivity : BaseActivity() {
         }
     }
 
+    //Start gallery
     private fun showImageChooser() {
         val galleryIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
         loadImageGallery.launch(galleryIntent)
@@ -223,6 +224,8 @@ class MainActivity : BaseActivity() {
     }
 
 
+
+    //Gets userData and setUps it in UI
     fun updateNavigationUserDetails(user: User) {
         hideProgressDialog()
         mUserDetails = user

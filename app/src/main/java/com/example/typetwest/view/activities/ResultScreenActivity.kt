@@ -46,6 +46,8 @@ class ResultScreenActivity : BaseActivity() {
         binding.tvMistakes.text = "Mistakes: $mistakes"
 
 
+
+
     }
 
 

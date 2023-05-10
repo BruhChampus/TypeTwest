@@ -35,7 +35,7 @@ class SignUpFragment : BaseFragment() {
 
         binding = FragmentSignUpBinding.inflate(layoutInflater)
         binding.tvSignIn.setOnClickListener {
-            val fragmentSignIn = SignInFragment.newInstance("", "")
+            val fragmentSignIn = SignInFragment.newInstance()
             activity?.supportFragmentManager?.beginTransaction()
                 ?.replace(R.id.fl_login_screen_fragment_container, fragmentSignIn)?.commit()
         }
@@ -91,7 +91,7 @@ class SignUpFragment : BaseFragment() {
         ).show()
         FirebaseAuth.getInstance().signOut()
 
-        val fragmentSignIn = SignInFragment.newInstance("", "")
+        val fragmentSignIn = SignInFragment.newInstance()
         activity?.supportFragmentManager?.beginTransaction()
             ?.replace(R.id.fl_login_screen_fragment_container, fragmentSignIn)?.commit()
     }
@@ -122,7 +122,7 @@ class SignUpFragment : BaseFragment() {
     companion object {
 
         @JvmStatic
-        fun newInstance(param1: String, param2: String) =
+        fun newInstance() =
             SignUpFragment().apply {
                 arguments = Bundle().apply {
 
