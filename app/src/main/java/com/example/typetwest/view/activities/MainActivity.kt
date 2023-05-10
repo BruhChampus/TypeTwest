@@ -239,18 +239,20 @@ class MainActivity : BaseActivity() {
             .into(findViewById<CircleImageView>(R.id.civ_user_image))
 
 
-        if (mAccuracyFromResultScreen != null && mAvgWpmFromResultScreen != null) {
-            //Making mUserDetails.accuracy from "86,4%" to "86.4"
-            val mUserDetailsAccuracyFloat = mUserDetails.accuracy.replace(",", ".").dropLast(1)
-            val mAverageAccuracyFloat =
-                ((mUserDetailsAccuracyFloat.toFloat() + mAccuracyFromResultScreen!!) / 2)
-            mAverageAccuracy = String.format("%.1f", mAverageAccuracyFloat) + "%"
-            mAvgWpm = (mUserDetails.avgWpm + mAvgWpmFromResultScreen!!) / 2
-            //Passing the new data to Firebase
-            updateUserProfileData()
-            binding.tvSeconds.text = "$mSeconds seconds"
-            binding.tvTotalAccuracy.text = "Total accuracy: ${mAverageAccuracy}"
-            binding.tvAvgWpm.text = "Average WPM: ${mAvgWpm}"
+        if (mAccuracyFromResultScreen != null && mAvgWpmFromResultScreen != null && user.avgWpm != 0 && user.accuracy != "0%") {
+
+                //Making mUserDetails.accuracy from "86,4%" to "86.4"
+                val mUserDetailsAccuracyFloat = mUserDetails.accuracy.replace(",", ".").dropLast(1)
+                val mAverageAccuracyFloat =
+                    ((mUserDetailsAccuracyFloat.toFloat() + mAccuracyFromResultScreen!!) / 2)
+                mAverageAccuracy = String.format("%.1f", mAverageAccuracyFloat) + "%"
+                mAvgWpm = (mUserDetails.avgWpm + mAvgWpmFromResultScreen!!) / 2
+                //Passing the new data to Firebase
+                updateUserProfileData()
+                binding.tvSeconds.text = "$mSeconds seconds"
+                binding.tvTotalAccuracy.text = "Total accuracy: ${mAverageAccuracy}"
+                binding.tvAvgWpm.text = "Average WPM: ${mAvgWpm}"
+
         }else{
             binding.tvSeconds.text = "$mSeconds seconds"
             binding.tvTotalAccuracy.text = "Total accuracy: ${mUserDetails.accuracy}"
